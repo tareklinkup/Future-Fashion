@@ -392,7 +392,7 @@
                                         </td>
                                     </tr>
 
-                                    <tr>
+                                    <!-- <tr>
                                         <td>
                                             <div class="form-group">
                                                 <label class="col-xs-12 control-label no-padding-right">Paid</label>
@@ -403,9 +403,9 @@
                                                 </div>
                                             </div>
                                         </td>
-                                    </tr>
+                                    </tr> -->
 
-                                    <tr>
+                                    <!-- <tr>
                                         <td>
                                             <div class="form-group">
                                                 <label class="col-sm-12 control-label no-padding-right">Payment
@@ -420,9 +420,37 @@
                                                 </div>
                                             </div>
                                         </td>
+                                    </tr> -->
+
+
+                                    <tr>
+                                        <td>
+                                            <div class="form-group">
+                                                <label class="col-xs-12 control-label no-padding-right">Cash
+                                                    Paid</label>
+                                                <div class="col-xs-12">
+                                                    <input type="number" id="cashPaid" class="form-control"
+                                                        v-model="sales.cashPaid" v-on:input="calculateTotal" />
+                                                </div>
+                                            </div>
+                                        </td>
                                     </tr>
+
+                                    <tr>
+                                        <td>
+                                            <div class="form-group">
+                                                <label class="col-xs-12 control-label no-padding-right">Bank
+                                                    Paid</label>
+                                                <div class="col-xs-12">
+                                                    <input type="number" id="bankPaid" class="form-control"
+                                                        v-model="sales.bankPaid" v-on:input="calculateTotal" />
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+
                                     <tr style="display: none;"
-                                        :style="{display: sales.payment_type == 'bank' ? '' : 'none'}">
+                                        :style="{display: sales.bankPaid.length > 0 ? '' : 'none'}">
                                         <td>
                                             <div class="form-group">
                                                 <label class="col-sm-12 control-label no-padding-right">Bank
@@ -505,6 +533,8 @@ new Vue({
                 subTotal: 0.00,
                 discount: 0.00,
                 vat: 0.00,
+                cashPaid: 0.00,
+                bankPaid: 0.00,
                 transportCost: 0.00,
                 total: 0.00,
                 paid: 0.00,
@@ -537,7 +567,12 @@ new Vue({
             oldPreviousDue: 0,
             products: [],
             accounts: [],
-            selectedAccount: null,
+
+            selectedAccount: {
+                account_id: '',
+                display_text: 'Select Account',
+                account_name: ''
+            },
             selectedProduct: {
                 Product_SlNo: '',
                 display_text: 'Select Product',
@@ -781,14 +816,25 @@ new Vue({
                 if (event.target.id != 'paid') {
                     this.sales.paid = 0;
                 }
-                this.sales.due = (parseFloat(this.sales.total) - parseFloat(this.sales.paid)).toFixed(2);
+                this.sales.due = (parseFloat(this.sales.total) - parseFloat(this.sales.cashPaid) - parseFloat(
+                    this.sales.bankPaid)).toFixed(2);
             }
         },
         async saveSales() {
+
             if (this.selectedCustomer.Customer_SlNo == '') {
                 alert('Select Customer');
                 return;
             }
+
+            let payment = (parseFloat(this.sales.cashPaid) + parseFloat(this.sales.bankPaid)).toFixed(2);
+            console.log(payment);
+
+            if (this.selectedCustomer.Customer_Type == 'G' && payment != this.sales.total) {
+                alert('Please Pay Full Payment!');
+                return;
+            }
+
             if (this.cart.length == 0) {
                 alert('Cart is empty');
                 return;
@@ -872,6 +918,8 @@ new Vue({
                 this.sales.vat = sales.SaleMaster_TaxAmount;
                 this.sales.transportCost = sales.SaleMaster_Freight;
                 this.sales.total = sales.SaleMaster_TotalSaleAmount;
+                this.sales.cashPaid = sales.SaleMaster_cashPaid;
+                this.sales.bankPaid = sales.SaleMaster_bankPaid;
                 this.sales.paid = sales.SaleMaster_PaidAmount;
                 this.sales.previousDue = sales.SaleMaster_Previous_Due;
                 this.sales.due = sales.SaleMaster_DueAmount;
@@ -891,16 +939,26 @@ new Vue({
                     Employee_Name: sales.Employee_Name
                 }
 
-                this.selectedCustomer = {
-                    Customer_SlNo: sales.SalseCustomer_IDNo,
-                    Customer_Code: sales.Customer_Code,
-                    Customer_Name: sales.Customer_Name,
-                    display_name: sales.Customer_Type == 'G' ? 'General Customer' :
-                        `${sales.Customer_Code} - ${sales.Customer_Name}`,
-                    Customer_Mobile: sales.Customer_Mobile,
-                    Customer_Address: sales.Customer_Address,
-                    Customer_Type: sales.Customer_Type
-                }
+                // this.selectedAccount = {
+                //     account_id: sales.account_id,
+                //     display_name: sales.account_name
+                // }
+
+                this.selectedAccount = {
+                        account_id: sales.account_id,
+                        display_text: sales.account_name,
+                    },
+
+                    this.selectedCustomer = {
+                        Customer_SlNo: sales.SalseCustomer_IDNo,
+                        Customer_Code: sales.Customer_Code,
+                        Customer_Name: sales.Customer_Name,
+                        display_name: sales.Customer_Type == 'G' ? 'General Customer' :
+                            `${sales.Customer_Code} - ${sales.Customer_Name}`,
+                        Customer_Mobile: sales.Customer_Mobile,
+                        Customer_Address: sales.Customer_Address,
+                        Customer_Type: sales.Customer_Type
+                    }
 
                 r.saleDetails.forEach(product => {
                     let cartProduct = {

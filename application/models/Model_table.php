@@ -176,10 +176,9 @@ class Model_Table extends CI_Model{
             select
             /* Received */
             (
-                select ifnull(sum(sm.SaleMaster_PaidAmount), 0) from tbl_salesmaster sm
+                select ifnull(sum(sm.SaleMaster_cashPaid), 0) from tbl_salesmaster sm
                 where sm.SaleMaster_branchid= " . $this->session->userdata('BRANCHid') . "
                 and sm.Status = 'a'
-                and sm.payment_type != 'bank'
                 " . ($date == null ? "" : " and sm.SaleMaster_SaleDate < '$date'") . "
             ) as received_sales,
             (
@@ -325,10 +324,9 @@ class Model_Table extends CI_Model{
                 ba.*,
 
                 (
-                    select ifnull(sum(sm.SaleMaster_PaidAmount), 0) from tbl_salesmaster sm
+                    select ifnull(sum(sm.SaleMaster_bankPaid), 0) from tbl_salesmaster sm
                     where sm.SaleMaster_branchid= " . $this->session->userdata('BRANCHid') . "
                     and sm.Status = 'a'
-                    and sm.payment_type != 'cash'
                     " . ($date == null ? "" : " and sm.SaleMaster_SaleDate < '$date'") . "
                 ) as received_sales,
                 (

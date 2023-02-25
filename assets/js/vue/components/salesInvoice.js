@@ -35,7 +35,6 @@ const salesInvoice = Vue.component('sales-invoice', {
                         <strong>{{ language == 'english' ? 'Sales by' : language == 'bangla' ? 'বিক্রয়কারী' : 'المبيعات عن طريق'}}:</strong> {{ sales.AddBy }}<br>
                         <strong>{{ language == 'english' ? 'Invoice No.' : language == 'bangla' ? 'মেমো নাম্বার' : "رقم الفاتورة"}}:</strong> {{ sales.SaleMaster_InvoiceNo }}<br> 
                         <strong>{{ language == 'english' ? 'Sales Date' : language == 'bangla' ? 'তারিখ' : 'تاريخ المبيعات'}}: </strong> {{ sales.SaleMaster_SaleDate }} {{ sales.AddTime | formatDateTime('h:mm a') }} <br> 
-                        <strong>{{ language == 'english' ? 'Payment Type' : language == 'bangla' ? 'পরিশোধের ধরন' : 'نوع الدفع'}}: </strong> {{ sales.payment_type }} 
                     </div>
                 </div>
                 <div class="row">
@@ -115,7 +114,15 @@ const salesInvoice = Vue.component('sales-invoice', {
                                 <td style="text-align:right">{{ sales.SaleMaster_TotalSaleAmount }}</td>
                             </tr>
                             <tr>
-                                <td><strong>{{ language == 'english' ? 'Paid' : language == 'bangla' ? 'জমা' : 'مدفوع'}}:</strong></td>
+                                <td><strong>{{ language == 'english' ? 'Cash Paid' : language == 'bangla' ? 'নগদ প্রদান' : 'النقدية المدفوعة'}}:</strong></td>
+                                <td style="text-align:right">{{ sales.SaleMaster_cashPaid }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>{{ language == 'english' ? 'Bank Paid' : language == 'bangla' ? 'ব্যাংক প্রদান' : 'البنك المدفوع'}}:</strong></td>
+                                <td style="text-align:right">{{ sales.SaleMaster_bankPaid }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>{{ language == 'english' ? 'Total Paid' : language == 'bangla' ? 'জমা' : 'مدفوع'}}:</strong></td>
                                 <td style="text-align:right">{{ sales.SaleMaster_PaidAmount }}</td>
                             </tr>
                             <tr><td colspan="2" style="border-bottom: 1px solid #ccc"></td></tr>

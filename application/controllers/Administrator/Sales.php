@@ -128,11 +128,13 @@ class Sales extends CI_Controller {
                 'SaleMaster_TotalSaleAmount' => $data->sales->total,
                 'SaleMaster_TotalDiscountAmount' => $data->sales->discount,
                 'SaleMaster_Freight' => $data->sales->transportCost,
-                'payment_type' => $data->sales->payment_type, 
+                //'payment_type' => $data->sales->payment_type, 
                 'account_id' => $data->sales->account_id, 
                 'SaleMaster_SubTotalAmount' => $data->sales->subTotal, 
                 'SaleMaster_TaxAmount' => $data->sales->vat, 
-                'SaleMaster_PaidAmount' => $data->sales->paid,
+                'SaleMaster_cashPaid' => $data->sales->cashPaid, 
+                'SaleMaster_bankPaid' => $data->sales->bankPaid, 
+                'SaleMaster_PaidAmount' => $data->sales->cashPaid + $data->sales->bankPaid,
                 'SaleMaster_DueAmount' => $data->sales->due,
                 'SaleMaster_Previous_Due' => $data->sales->previousDue,
                 'SaleMaster_Description' => $data->sales->note,
@@ -386,10 +388,12 @@ class Sales extends CI_Controller {
             c.Customer_Address,
             c.Customer_Type,
             e.Employee_Name,
-            br.Brunch_name
+            br.Brunch_name,
+            a.account_name
             from tbl_salesmaster sm
             left join tbl_customer c on c.Customer_SlNo = sm.SalseCustomer_IDNo
             left join tbl_employee e on e.Employee_SlNo = sm.employee_id
+            left join tbl_bank_accounts a on a.account_id = sm.account_id
             left join tbl_brunch br on br.brunch_id = sm.SaleMaster_branchid
             where sm.SaleMaster_branchid = '$branchId'
             and sm.Status = 'a'
@@ -447,10 +451,12 @@ class Sales extends CI_Controller {
                 'SaleMaster_TotalDiscountAmount' => $data->sales->discount,
                 'SaleMaster_TaxAmount' => $data->sales->vat,
                 'SaleMaster_Freight' => $data->sales->transportCost,
-                'payment_type' => $data->sales->payment_type, 
+                //'payment_type' => $data->sales->payment_type, 
                 'account_id' => $data->sales->account_id, 
                 'SaleMaster_SubTotalAmount' => $data->sales->subTotal,
-                'SaleMaster_PaidAmount' => $data->sales->paid,
+                'SaleMaster_cashPaid' => $data->sales->cashPaid, 
+                'SaleMaster_bankPaid' => $data->sales->bankPaid, 
+                'SaleMaster_PaidAmount' => $data->sales->cashPaid + $data->sales->bankPaid,
                 'SaleMaster_DueAmount' => $data->sales->due,
                 'SaleMaster_Previous_Due' => $data->sales->previousDue,
                 'SaleMaster_Description' => $data->sales->note,

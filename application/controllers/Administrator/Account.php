@@ -1061,6 +1061,7 @@ class Account extends CI_Controller {
     }
 
     public function getAllBankTransactions(){
+
         $data = json_decode($this->input->raw_input_stream);
 
         $clauses = "";
@@ -1223,6 +1224,29 @@ class Account extends CI_Controller {
                 and sp.SPayment_status = 'a'
                 and sp.SPayment_TransactionType = 'CR'
                 and sp.SPayment_brunchid = " . $this->session->userdata('BRANCHid') . "
+
+                UNION
+                select
+                    'g' as sequence,
+                    sm.SaleMaster_SlNo as id,
+                    concat('Product Sales - ', c.Customer_Name, ' (', sm.SaleMaster_InvoiceNo, ')') as description, 
+                    sm.account_id,
+                    sm.SaleMaster_SaleDate as transaction_date,
+                    'payment_type' as transaction_type,
+                    sm.SaleMaster_bankPaid as deposit,
+                    0.00 as withdraw,
+                    sm.SaleMaster_Description as note,
+                    ac.account_name,
+                    ac.account_number,
+                    ac.bank_name,
+                    ac.branch_name,
+                    0.00 as balance
+                from tbl_salesmaster sm
+                join tbl_bank_accounts ac on ac.account_id = sm.account_id
+                join tbl_customer c on c.Customer_SlNo = sm.SalseCustomer_IDNo
+                where sm.account_id is not null
+                and sm.Status = 'a'
+                and sm.SaleMaster_branchid = " . $this->session->userdata('BRANCHid') . "
             ) as tbl
             where 1 = 1 $clauses
             order by $order
@@ -1340,11 +1364,12 @@ class Account extends CI_Controller {
                 sm.SaleMaster_SlNo as id,
                 sm.SaleMaster_SaleDate as date,
                 concat('Sale - ', sm.SaleMaster_InvoiceNo, ' - ', c.Customer_Name, ' (', c.Customer_Code, ')', ' - Bill: ', sm.SaleMaster_TotalSaleAmount) as description,
-                sm.SaleMaster_PaidAmount as in_amount,
+                sm.SaleMaster_cashPaid as in_amount,
                 0.00 as out_amount
             from tbl_salesmaster sm 
             join tbl_customer c on c.Customer_SlNo = sm.SalseCustomer_IDNo
             where sm.Status = 'a'
+            and sm.SaleMaster_cashPaid != 0
             and sm.SaleMaster_branchid = '$this->brunch'
             and sm.SaleMaster_SaleDate between '$data->fromDate' and '$data->toDate'
             
